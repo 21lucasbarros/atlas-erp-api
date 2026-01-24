@@ -1,0 +1,325 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../node_modules/.prisma/client"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+/* user, roles e permissões */
+model User {
+  id        String   @id @default(uuid())
+  name      String
+  email     String   @unique
+  password  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  roles     UserRole[]
+  tickets   Ticket[]
+  logs      AuditLog[]
+  employee  Employee?
+  ticketMessages TicketMessage[]
+}
+
+model Role {
+  id          String  @id @default(uuid())
+  name        String  @unique
+  description String?
+
+  users       UserRole[]
+  permissions RolePermission[]
+}
+
+model Permission {
+  id          String  @id @default(uuid())
+  name        String  @unique
+  description String?
+
+  roles       RolePermission[]
+}
+
+model UserRole {
+  id     String @id @default(uuid())
+  userId String
+  roleId String
+
+  user   User   @relation(fields: [userId], references: [id])
+  role   Role   @relation(fields: [roleId], references: [id])
+}
+
+model RolePermission {
+  id          String @id @default(uuid())
+  roleId      String
+  permissionId String
+
+  role        Role       @relation(fields: [roleId], references: [id])
+  permission  Permission @relation(fields: [permissionId], references: [id])
+}
+
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+}
+
+/* funcionarios/rh */
+model Employee {
+  id           String @id @default(uuid())
+  userId       String? @unique
+  name         String
+  role         String
+  contractType ContractType
+  salary       Float?
+  hiredAt      DateTime
+  firedAt      DateTime?
+
+  user         User?           @relation(fields: [userId], references: [id])
+  projects     ProjectMember[]
+  workHours    WorkHour[]
+  tasks        Task[]
+}
+
+model WorkHour {
+  id          String   @id @default(uuid())
+  employeeId  String
+  projectId   String?
+  date        DateTime
+  hours       Float
+  description String?
+  createdAt   DateTime @default(now())
+
+  employee    Employee @relation(fields: [employeeId], references:[id])
+  project     Project? @relation(fields: [projectId], references:[id])
+}
+
+enum ContractType {
+  CLT
+  PJ
+  FREELANCER
+}
+
+/* clientes e contato */
+model Client {
+  id           String       @id @default(uuid())
+  companyName  String
+  tradeName    String?
+  document     String       @unique
+  email        String
+  phone        String?
+  status       ClientStatus @default(ACTIVE)
+  createdAt    DateTime     @default(now())
+
+  contacts     ClientContact[]
+  projects     Project[]
+  invoices     Invoice[]
+  subscription Subscription[]
+  tickets      Ticket[]
+}
+
+model ClientContact {
+  id       String @id @default(uuid())
+  clientId String
+  name     String
+  email    String
+  phone    String?
+  position String?
+
+  client   Client @relation(fields: [clientId], references: [id])
+}
+
+enum ClientStatus {
+  ACTIVE
+  INACTIVE
+}
+
+/* projetos e tarefas */
+model Project {
+  id            String @id @default(uuid())
+  clientId      String
+  name          String
+  description   String?
+  status        ProjectStatus
+  startDate     DateTime
+  endDate       DateTime?
+  contractValue Float?
+
+  client        Client          @relation(fields: [clientId], references:  [id])
+  members       ProjectMember[]
+  tasks         Task[]
+  expenses      Expense[]
+  tickets       Ticket[]
+  workHours     WorkHour[]
+  invoices      Invoice[]
+}
+
+model ProjectMember {
+  id         String @id @default(uuid())
+  projectId  String
+  employeeId String
+  role       String?
+
+  project    Project  @relation(fields: [projectId], references: [id])
+  employee   Employee @relation(fields: [employeeId], references: [id])
+}
+
+model Task {
+  id            String @id @default(uuid())
+  projectId     String
+  responsibleId String?
+  title         String
+  description   String?
+  status        TaskStatus
+  priority      Int
+  startDate     DateTime?
+  dueDate       DateTime?
+
+  project       Project   @relation(fields: [projectId], references: [id])
+  responsible   Employee? @relation(fields: [responsibleId], references: [id])
+}
+
+enum ProjectStatus {
+  PLANNING
+  IN_PROGRESS
+  DONE
+}
+
+enum TaskStatus {
+  TODO
+  DOING
+  DONE
+}
+
+/* produtos e assinatura */
+model Product {
+  id            String @id @default(uuid())
+  name          String
+  type          ProductType
+  description   String?
+  price         Float
+  active        Boolean @default(true)
+
+  subscriptions Subscription[]
+}
+
+model Subscription {
+  id        String @id @default(uuid())
+  clientId  String
+  productId String
+  plan      String
+  value     Float
+  startAt   DateTime
+  endAt     DateTime?
+  status    SubscriptionStatus
+
+  client    Client  @relation(fields: [clientId], references: [id])
+  product   Product @relation(fields: [productId], references: [id])
+}
+
+enum ProductType {
+  SOFTWARE
+  SERVICE
+  LICENCE
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  CANCELED
+  EXPIRED
+}
+
+/* financeiro */
+model Invoice {
+  id        String        @id @default(uuid())
+  clientId  String
+  projectId String?
+  value     Float
+  issuedAt  DateTime
+  dueDate   DateTime
+  status    InvoiceStatus
+
+  client    Client    @relation(fields: [clientId], references: [id])
+  project   Project?  @relation(fields: [projectId], references: [id])
+  payments  Payment[]
+}
+
+model Payment {
+  id        String   @id @default(uuid())
+  invoiceId String
+  value     Float
+  paidAt    DateTime
+  method    String
+
+  invoice   Invoice @relation(fields: [invoiceId], references: [id])
+}
+
+model Expense {
+  id          String   @id @default(uuid())
+  projectId   String?
+  description String
+  category    String
+  value       Float
+  date        DateTime
+
+  project     Project? @relation(fields: [projectId], references: [id])
+}
+
+enum InvoiceStatus {
+  PENDING
+  PAID
+  OVERDUE
+}
+
+/* suporte/tickets */
+model Ticket {
+  id          String        @id @default(uuid())
+  clientId    String
+  userId      String?
+  projectId   String?
+  title       String
+  description String
+  priority    Int
+  status      TicketStatus
+  createdAt   DateTime     @default(now())
+
+  client      Client          @relation(fields: [clientId], references: [id])
+  user        User?           @relation(fields: [userId], references: [id])
+  project     Project?        @relation(fields: [projectId], references: [id])
+  messages    TicketMessage[]
+}
+
+model TicketMessage {
+  id        String   @id @default(uuid())
+  ticketId  String
+  userId    String
+  message   String
+  createdAt DateTime @default(now())
+
+  ticket    Ticket   @relation(fields: [ticketId], references: [id])
+  user      User     @relation(fields: [userId], references: [id])
+}
+
+enum TicketStatus {
+  OPEN
+  IN_PROGRESS
+  CLOSED
+}
+
+/* auditoria */
+model AuditLog {
+  id        String   @id @default(uuid())
+  userId    String
+  action    String
+  entity    String
+  entityId  String
+  createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id])
+}

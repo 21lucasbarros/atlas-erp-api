@@ -1,0 +1,25 @@
+{
+  "compilerOptions": {
+    /* ====== Básico ====== */
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "types": ["bun", "node"] /* Adicionado bun para reconhecer o runtime */,
+
+    /* ====== Compatibilidade ====== */
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "allowJs": true,
+    "noEmit": true /* O Bun não precisa gerar arquivos .js no build */,
+
+    /* ====== JSX ====== */
+    "jsx": "react-jsx",
+  },
+  "include": [
+    "src/**/*",
+    "api/**/*",
+  ] /* Garante que ambas as pastas sejam mapeadas */,
+  "exclude": ["node_modules"],
+}

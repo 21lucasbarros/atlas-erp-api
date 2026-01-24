@@ -1,0 +1,26 @@
+{
+  "name": "atlas-erp-api",
+  "version": "1.0.0",
+  "description": "API do Atlas ERP construída com Elysia, TypeScript e Prisma.",
+  "type": "module",
+  "scripts": {
+    "dev": "bun run --watch src/index.ts",
+    "build": "prisma generate",
+    "postinstall": "prisma generate",
+    "db:migrate:deploy": "prisma migrate deploy",
+    "db:studio": "bunx prisma studio"
+  },
+  "dependencies": {
+    "@elysiajs/cors": "^1.2.0",
+    "@prisma/client": "^6.1.0",
+    "bcrypt": "^6.0.0",
+    "elysia": "^1.2.10",
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "@types/bcrypt": "^6.0.0",
+    "@types/node": "^25.0.6",
+    "prisma": "^6.1.0",
+    "typescript": "^5.7.2"
+  }
+}

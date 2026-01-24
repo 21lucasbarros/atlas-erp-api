@@ -13,7 +13,7 @@ export const userRoutes = new Elysia({ prefix: "/users" })
     detail: {
       tags: ["Users"],
       summary: "Listar usuários",
-      description: "Retorna todos os usuários do sistema",
+      description: "Retorna todos os usuários do sistema.",
     },
   })
   .post("/", async ({ body }) => createUser(body), {
@@ -25,14 +25,14 @@ export const userRoutes = new Elysia({ prefix: "/users" })
     detail: {
       tags: ["Users"],
       summary: "Criar usuário",
-      description: "Cria um novo usuário no sistema",
+      description: "Cria um novo usuário no sistema.",
     },
   })
   .get("/:id", async ({ params }) => getUserById(params.id), {
     detail: {
       tags: ["Users"],
       summary: "Buscar usuário",
-      description: "Busca um usuário pelo ID",
+      description: "Busca um usuário pelo ID.",
     },
   })
   .put("/:id", async ({ params, body }) => updateUser(params.id, body), {
@@ -45,7 +45,7 @@ export const userRoutes = new Elysia({ prefix: "/users" })
     detail: {
       tags: ["Users"],
       summary: "Atualizar usuário",
-      description: "Atualiza os dados de um usuário",
+      description: "Atualiza os dados de um usuário.",
     },
   })
   .patch(
@@ -58,7 +58,7 @@ export const userRoutes = new Elysia({ prefix: "/users" })
       detail: {
         tags: ["Users"],
         summary: "Atualizar senha",
-        description: "Atualiza a senha do usuário",
+        description: "Atualiza a senha do usuário.",
       },
     },
   )
@@ -66,6 +66,6 @@ export const userRoutes = new Elysia({ prefix: "/users" })
     detail: {
       tags: ["Users"],
       summary: "Remover usuário",
-      description: "Remove um usuário do sistema",
+      description: "Remove um usuário do sistema.",
     },
   });

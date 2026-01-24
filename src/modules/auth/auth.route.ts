@@ -14,7 +14,7 @@ export const authRoutes = new Elysia({ prefix: "/auth" }).post(
     detail: {
       tags: ["Auth"],
       summary: "Login do usuário",
-      description: "Autentica o suário e retorna um JWT",
+      description: "Autentica o suário e retorna um JWT.",
     },
   },
 );

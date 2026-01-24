@@ -1,12 +1,18 @@
 import { prisma } from "../..";
+import { hashPassword } from "../../shared/password";
 
 export const createUser = async (data: {
   name: string;
   email: string;
   password: string;
 }) => {
+  const hashedPassword = await hashPassword(data.password);
+
   return prisma.user.create({
-    data,
+    data: {
+      ...data,
+      password: hashedPassword,
+    },
   });
 };
 

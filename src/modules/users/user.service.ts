@@ -44,6 +44,20 @@ export const updateUser = async (
   });
 };
 
+export const updateUserPassword = async (
+  userId: string,
+  newPassword: string,
+) => {
+  const hashedPassword = await hashPassword(newPassword);
+
+  return prisma.user.update({
+    where: { id: userId },
+    data: {
+      password: hashedPassword,
+    },
+  });
+};
+
 export const deleteUser = async (id: string) => {
   return prisma.user.delete({
     where: { id },

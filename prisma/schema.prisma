@@ -52,17 +52,21 @@ model UserRole {
   userId String
   roleId String
 
-  user   User   @relation(fields: [userId], references: [id])
-  role   Role   @relation(fields: [roleId], references: [id])
+  user   User @relation(fields: [userId], references: [id])
+  role   Role @relation(fields: [roleId], references: [id])
+
+  @@unique([userId, roleId])
 }
 
 model RolePermission {
-  id          String @id @default(uuid())
-  roleId      String
+  id           String @id @default(uuid())
+  roleId       String
   permissionId String
 
-  role        Role       @relation(fields: [roleId], references: [id])
-  permission  Permission @relation(fields: [permissionId], references: [id])
+  role         Role       @relation(fields: [roleId], references: [id])
+  permission   Permission @relation(fields: [permissionId], references: [id])
+
+  @@unique([roleId, permissionId])
 }
 
 enum UserStatus {
